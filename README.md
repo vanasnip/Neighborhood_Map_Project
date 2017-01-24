@@ -22,6 +22,6 @@ Google maps along with images from flickr have been used to illustrate in a way 
 2. Please note that this application has been designed to accommodate and respond to the device it has been launched on.
 
 ## Sources:
-[This link](http://knockoutjs.com// "Knockoutjs")
-[This link](http://stackoverflow.com// "Stackoverflow")
-[This link](https://www.flickr.com/services/api/// "Flickr Api Documentation")
+[Knockoutjs](http://knockoutjs.com// "Knockoutjs")
+[Stackoverflow](http://stackoverflow.com// "Stackoverflow")
+[Flickr Api Documentation](https://www.flickr.com/services/api/// "Flickr Api Documentation")
