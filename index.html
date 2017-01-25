@@ -22,7 +22,7 @@
       <img class="lon-eye-icon col-xs-2" src="imgs/lon-eye.png" alt="">
       <div class="col-xs-12 dropdown-menu">
         <input placeholder="search" class="col-xs-12" data-bind="value: Query, valueUpdate: 'keyup'" autocomplete="off">
-        <ul class="col-xs-12" data-bind="foreach: searchResults(), foreach: searchMarkers()">
+        <ul class="col-xs-12" data-bind="foreach: searchResults(), foreach searchMarkers()">
           <li class="col-xs-6 locations" data-bind="text: title, click: $parent.setMarker"></li>
         </ul>
         <button class="recenter col-xs-12">click to recenter <span>&#9673;</span>

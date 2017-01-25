@@ -190,6 +190,10 @@ function populateInfoWindow(marker, infowindow) {
 }
 
 function toggleBounce(marker) {
+  //stop all other bounces
+  for(var i = 0; i < markers.length; i++){
+    markers[i].setAnimation(null);
+  }
 	if (marker.getAnimation() !== null) {
 			marker.setAnimation(null);
 	} else {
@@ -208,7 +212,6 @@ function getFlickerImage(marker){
     //replace spaces with "+" to make it URL friendly
     searchText = searchText.replace(/\s+/g, '+');
     var URL = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fd46fabfe3102f771ee0e03a437febf4&text=" + searchText +      "&page=1&format=json&jsoncallback=?";
-    console.log(URL);
     return URL;
   }
   function searchFlickr(url){//accessing flicker API
