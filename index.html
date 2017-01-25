@@ -36,7 +36,7 @@
         <ul data-bind="foreach: searchResults(), foreach searchMarkers()">
           <li class="col-xs-12 locations" data-bind="text: title, click: $parent.setMarker"></li>
         </ul>
-        <button class="recenter col-xs-12">click to recenter <span>&#9673;</span>
+        <button class="recenter col-xs-12" data-bind="click: recenter">click to recenter <span>&#9673;</span>
         </button>
       </div>
       <div class="col-xs-12 london-eye">
@@ -49,7 +49,7 @@
 
 
   <script src="js/app.js"></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9lp_4MnBzuh-R8-L8f8yQ15QKgHeRMnI&v=3&callback=initMap"></script>
+  
 
 </body>
 
