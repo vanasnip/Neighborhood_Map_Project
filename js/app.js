@@ -3,7 +3,7 @@ var map;
 
 // Create a new blank array for all the listing markers.
 var markers = [];
-var Query = ko.observable(""); //element typed into  input
+var query = ko.observable(""); //element typed into  input
 
 function Model(){
   var galleryMarkers = [{
@@ -138,7 +138,7 @@ function initMap() {
       clickedMarker.clickable(); //when side bar link is clicked open infowindow for selected location
     };
     this.searchResults = ko.computed(function() {
-      var q = Query();// typed into input to be compared
+      var q = query();// typed into input to be compared
       return ultimateList().filter(function(i) {
         console.log("boom");
 
@@ -147,7 +147,7 @@ function initMap() {
     });
 
     this.searchMarkers = ko.computed(function() {
-      var q = Query();// typed into input to be compared
+      var q = query();// typed into input to be compared
 
           return markers.filter(function(i) {
             if(i.title.toLowerCase().indexOf(q) !== 0){
