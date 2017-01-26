@@ -201,7 +201,11 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
         infowindow.marker = marker;
-        infowindow.setContent('<div class="markers marker0' + marker.id + '">' + getFlickerImage(marker) + '</div>');
+        var test = getFlickerImage(marker);
+        infowindow.setContent(
+          '<div class="markers marker0' + marker.id + '">' + "yes" + '</div>'
+          //"<li class'markerLiItem'><img src='" + 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg' + "' alt=''></li>"
+        );
         map.setZoom(15);
         map.setCenter(marker.getPosition());
         infowindow.open(map, marker);
@@ -228,8 +232,10 @@ function toggleBounce(marker) {
 
 function getFlickerImage(marker) {
     var self = this;
+
     // modURL makes aurl thats icluded search for this marker title
     var getURL = modURL(marker);
+
     searchFlickr(getURL);
 
     function modURL(modMarker) { //Modify URL for spcific marker
@@ -240,29 +246,39 @@ function getFlickerImage(marker) {
         //var URL = "www.testingmy/json.com"
         return URL;
     }
+    var imageDataConstructor = function(data) {
+      //bount to sidebar links giving access to marker behaviour
+      this.farm = data.farm;
+      this.server = data.server;
+      this.id = data.id;
+      this.secret = data.secret;
+    };
 
     function searchFlickr(url) { //accessing flicker API
         //This function actually does something with the data after it has been read in from the Flickr API.
-        jqXHR = $.getJSON(url, function displayImages1(data) {
+              function testingFurther(){
+        jqXHR = $.getJSON(url, function displayImages1(rawData) {
                 //Loop through the results in the JSON array of data. The 'data.photos.photo' bit is what you are trying to 'get at'. i.e. this loop looks at each photo in turn.
-                var photoURL;
+                var urlArray = [];
                 // element in infowindow unique to this marker to append images
                 var idMatch = ".marker0" + marker.id;
                 //Gets the url for each image in recovered JSON.
+                function bringItBack(data){
                 $.each(data.photos.photo, function(i, item) {
                     //only get the first three images
+                    /*******************************************************************
+                    ********************************************************************/
+
                     if (i < 3) {
                         //construct image tag and source with in li for styling in css
-                        photoURL = "<li class'markerLiItem'><img src='" + 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg' + "' alt=''></li>";
-                        // append to the dom
-                        $(idMatch).append(photoURL);
-                        if (i === 2) {
-                            //for last iteration add one more list element including title, street and city for display
-                            photoURL = "<li class'markerLiItem'><h3>" + marker.title + "</h3><p>" + marker.street + "</p><p>" + marker.city + "</p></li>";
-                            $(idMatch).append(photoURL);
-                        }
+                        urlArray[i] = new imageDataConstructor(item);
+                        //console.log(urlArray[0]);
                     }
                 });
+                return urlArray;
+              }
+              console.log(bringItBack(rawData));
+              return bringItBack(rawData);
             }).done(function() {
                 console.log('getJSON request succeeded!');
             })
@@ -274,5 +290,6 @@ function getFlickerImage(marker) {
             });
 
     }
-    return '';
+  //console.log(jqXHR);
+  return jqXHR;//;
 }
