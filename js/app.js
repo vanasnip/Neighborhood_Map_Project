@@ -1,3 +1,4 @@
+
 var script = document.createElement("script");
 $(script).attr("async", "async");
 $(script).attr("defer", "defer");
@@ -201,10 +202,13 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
         infowindow.marker = marker;
-        var test = getFlickerImage(marker);
+        var flickrGet = getFlickerImage(marker);
         infowindow.setContent(
-          '<div class="markers marker0' + marker.id + '">' + "yes" + '</div>'
-          //"<li class'markerLiItem'><img src='" + 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg' + "' alt=''></li>"
+          '<div class="markers marker0' + marker.id + '">' +
+           "<li class'markerLiItem'><img src='" + 'http://farm' + flickrGet[0].farm + '.static.flickr.com/' + flickrGet[0].server + '/' + flickrGet[0].id + '_' + flickrGet[0].secret + '_m.jpg' + "' alt=''></li>" +
+           "<li class'markerLiItem'><img src='" + 'http://farm' + flickrGet[1].farm + '.static.flickr.com/' + flickrGet[1].server + '/' + flickrGet[1].id + '_' + flickrGet[1].secret + '_m.jpg' + "' alt=''></li>" +
+           "<li class'markerLiItem'><img src='" + 'http://farm' + flickrGet[2].farm + '.static.flickr.com/' + flickrGet[2].server + '/' + flickrGet[2].id + '_' + flickrGet[2].secret + '_m.jpg' + "' alt=''></li>" +
+          "<li class'markerLiItem'><h3>" + marker.title + "</h3><p>" + marker.street + "</p><p>" + marker.city + "</p></li></div>"
         );
         map.setZoom(15);
         map.setCenter(marker.getPosition());
@@ -230,12 +234,13 @@ function toggleBounce(marker) {
     }
 }
 
-function getFlickerImage(marker) {
+function getFlickerImage(marker){
+
     var self = this;
 
     // modURL makes aurl thats icluded search for this marker title
     var getURL = modURL(marker);
-
+    var myVariable;
     searchFlickr(getURL);
 
     function modURL(modMarker) { //Modify URL for spcific marker
@@ -253,17 +258,32 @@ function getFlickerImage(marker) {
       this.id = data.id;
       this.secret = data.secret;
     };
+    var sendItOutConstructor = function(data) {
+      //bount to sidebar links giving access to marker behaviour
+      this.myObject = data;
+
+    };
 
     function searchFlickr(url) { //accessing flicker API
         //This function actually does something with the data after it has been read in from the Flickr API.
-              function testingFurther(){
-        jqXHR = $.getJSON(url, function displayImages1(rawData) {
+
+            jqXHR = $.getJSON(url, displayImages1).done(function() {
+                console.log('getJSON request succeeded!');
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.log('getJSON request failed! ' + textStatus);
+
+            })
+            .always(function() {
+                console.log('getJSON request ended!');
+
+            });
+
+              function displayImages1(rawData) {
                 //Loop through the results in the JSON array of data. The 'data.photos.photo' bit is what you are trying to 'get at'. i.e. this loop looks at each photo in turn.
-                var urlArray = [];
-                // element in infowindow unique to this marker to append images
-                var idMatch = ".marker0" + marker.id;
                 //Gets the url for each image in recovered JSON.
                 function bringItBack(data){
+                  var urlArray = [];
                 $.each(data.photos.photo, function(i, item) {
                     //only get the first three images
                     /*******************************************************************
@@ -271,25 +291,18 @@ function getFlickerImage(marker) {
 
                     if (i < 3) {
                         //construct image tag and source with in li for styling in css
-                        urlArray[i] = new imageDataConstructor(item);
+                        urlArray[i] = new imageDataConstructor(item.farm);
                         //console.log(urlArray[0]);
                     }
                 });
-                return urlArray;
+                myVariable = new sendItOutConstructor(urlArray);
+                return myVariable.myObject;
               }
-              console.log(bringItBack(rawData));
               return bringItBack(rawData);
-            }).done(function() {
-                console.log('getJSON request succeeded!');
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                console.log('getJSON request failed! ' + textStatus);
-            })
-            .always(function() {
-                console.log('getJSON request ended!');
-            });
+            }
+              //console.log(displayImages1(jqXHR));
 
-    }
-  //console.log(jqXHR);
-  return jqXHR;//;
+          }
+
+  return jqXHR.responseJSON;
 }
