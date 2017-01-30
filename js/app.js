@@ -1,17 +1,10 @@
 
-var script = document.createElement("script");
-$(script).attr("async", "async");
-$(script).attr("defer", "defer");
-script.onerror = function(event) {
-    console.log("Maps Api Failed to Load!");
-};
-script.onload = function(event) {
-    console.log("Maps Api Loaded Successfully!");
-};
-script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyC9lp_4MnBzuh-R8-L8f8yQ15QKgHeRMnI&v=3&callback=initMap";
-document.body.appendChild(script);
+function googleError(){
+  console.log("Google Maps Failed To Load!");
+}
 
-var map;
+var map,
+infowindow; // make infowindow a global variable
 
 // Create a new blank array for all the listing markers.
 var markers = [];
@@ -101,7 +94,7 @@ function initMap() {
     // These are the real estate listings that will be shown to the user.
     // Normally we'd have these in a database instead.
     var locations = Model();
-    var largeInfowindow = new google.maps.InfoWindow();
+    infowindow = new google.maps.InfoWindow();
     var bounds = new google.maps.LatLngBounds();
     // The following group uses the location array to create an array of markers on initialize.
     for (var i = 0; i < locations.length; i++) {
@@ -123,7 +116,7 @@ function initMap() {
         // Push the marker to our array of markers.
         // Create an onclick event to open an infowindow at each marker.
         marker.addListener('click', function() {
-            populateInfoWindow(this, largeInfowindow, streetAddress, cityAddress);
+            populateInfoWindow(this);
             toggleBounce(this); //click to start and stop bounce when marker clicked
         });
         //add to markers array
@@ -146,7 +139,7 @@ function initMap() {
         this.visibility = ko.observable(data.visible);
         this.clickable = function() {
             //open info window when clicked
-            populateInfoWindow(data, largeInfowindow);
+            populateInfoWindow(data);
             //bounce animation when clicked
             toggleBounce(data);
         };
@@ -156,7 +149,8 @@ function initMap() {
         var self = this;
         //creates array to search through and compare with input
         this.recenter = function() {
-            return map.fitBounds(bounds);
+          $('.recenter').css('display', 'none');
+          return map.fitBounds(bounds);
         }
 
         function ultimateList() {
@@ -198,16 +192,12 @@ function initMap() {
 // This function populates the infowindow when the marker is clicked. We'll only allow
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
-function populateInfoWindow(marker, infowindow) {
+function populateInfoWindow(marker) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
         infowindow.marker = marker;
-        var flickrGet = getFlickerImage(marker);
+        getFlickerImage(marker);
         infowindow.setContent(
-          '<div class="markers marker0' + marker.id + '">' +
-           "<li class'markerLiItem'><img src='" + 'http://farm' + flickrGet[0].farm + '.static.flickr.com/' + flickrGet[0].server + '/' + flickrGet[0].id + '_' + flickrGet[0].secret + '_m.jpg' + "' alt=''></li>" +
-           "<li class'markerLiItem'><img src='" + 'http://farm' + flickrGet[1].farm + '.static.flickr.com/' + flickrGet[1].server + '/' + flickrGet[1].id + '_' + flickrGet[1].secret + '_m.jpg' + "' alt=''></li>" +
-           "<li class'markerLiItem'><img src='" + 'http://farm' + flickrGet[2].farm + '.static.flickr.com/' + flickrGet[2].server + '/' + flickrGet[2].id + '_' + flickrGet[2].secret + '_m.jpg' + "' alt=''></li>" +
           "<li class'markerLiItem'><h3>" + marker.title + "</h3><p>" + marker.street + "</p><p>" + marker.city + "</p></li></div>"
         );
         map.setZoom(15);
@@ -267,42 +257,29 @@ function getFlickerImage(marker){
     function searchFlickr(url) { //accessing flicker API
         //This function actually does something with the data after it has been read in from the Flickr API.
 
-            jqXHR = $.getJSON(url, displayImages1).done(function() {
-                console.log('getJSON request succeeded!');
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                console.log('getJSON request failed! ' + textStatus);
+      jqXHR = $.getJSON(url, displayImages1).done(function() {
+          console.log('getJSON request succeeded!');
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+          console.log('getJSON request failed! ' + textStatus);
 
-            })
-            .always(function() {
-                console.log('getJSON request ended!');
+      })
+      .always(function() {
+          console.log('getJSON request ended!');
 
-            });
+      });
 
-              function displayImages1(rawData) {
-                //Loop through the results in the JSON array of data. The 'data.photos.photo' bit is what you are trying to 'get at'. i.e. this loop looks at each photo in turn.
-                //Gets the url for each image in recovered JSON.
-                function bringItBack(data){
-                  var urlArray = [];
-                $.each(data.photos.photo, function(i, item) {
-                    //only get the first three images
-                    /*******************************************************************
-                    ********************************************************************/
+      function displayImages1(rawData) {
 
-                    if (i < 3) {
-                        //construct image tag and source with in li for styling in css
-                        urlArray[i] = new imageDataConstructor(item.farm);
-                        //console.log(urlArray[0]);
-                    }
-                });
-                myVariable = new sendItOutConstructor(urlArray);
-                return myVariable.myObject;
-              }
-              return bringItBack(rawData);
-            }
-              //console.log(displayImages1(jqXHR));
+        infowindow.setContent(
+          //define infowindow here because code runs asyncronously
+          '<div class="markers marker0' + marker.id + '">' +
+          "<li class'markerLiItem'><img src='" + 'http://farm' + rawData.photos.photo[0].farm + '.static.flickr.com/' + rawData.photos.photo[0].server + '/' + rawData.photos.photo[0].id + '_' + rawData.photos.photo[0].secret + '_m.jpg' + "' alt=''></li>" +
+          "<li class'markerLiItem'><img src='" + 'http://farm' + rawData.photos.photo[1].farm + '.static.flickr.com/' + rawData.photos.photo[1].server + '/' + rawData.photos.photo[1].id + '_' + rawData.photos.photo[1].secret + '_m.jpg' + "' alt=''></li>" +
+          "<li class'markerLiItem'><img src='" + 'http://farm' + rawData.photos.photo[2].farm + '.static.flickr.com/' + rawData.photos.photo[2].server + '/' + rawData.photos.photo[2].id + '_' + rawData.photos.photo[2].secret + '_m.jpg' + "' alt=''></li>" +
+          "<li class'markerLiItem'><h3>" + marker.title + "</h3><p>" + marker.street + "</p><p>" + marker.city + "</p></li></div>"
+        );
+      }
 
-          }
-
-  return jqXHR.responseJSON;
+    }
 }
